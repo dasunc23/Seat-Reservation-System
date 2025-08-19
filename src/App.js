@@ -1,24 +1,92 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AuthProvider } from './context/authContect';
+import { ReservationProvider } from './context/reservvationContext';
+import Navbar from './components/navbar';
+import Footer from './components/footer';
+import HomePage from './pages/home';
+import LoginPage from './pages/login';
+import RegisterPage from './pages/register';
+import DashboardPage from './pages/internDasboard';
+import ProfilePage from './pages/profile';
+import PrivateRoute from './components/privateRoute';
+
+// Admin components
+import AdminLayout from './components/adminLayout';
+import SeatManager from './admin/seatManager';
+import AdminReservations from './admin/adminReservation';
+import ReportGenerator from './admin/reportGenerator';
+import AdminHome from './pages/adminHome';
+
+const AppContent = () => {
+  const location = useLocation();
+  const hideChrome = location.pathname === '/login' || location.pathname === '/register';
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Navbar />
+              <HomePage />
+            </>
+          } />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <DashboardPage />
+              </>
+            </PrivateRoute>
+          } />
+          
+          {/* Admin routes */}
+          <Route path="/admin" element={
+            <PrivateRoute adminOnly>
+              <AdminLayout />
+            </PrivateRoute>
+          }>
+            <Route index element={<AdminHome />} />
+            <Route path="seats" element={<SeatManager />} />
+            <Route path="reservations" element={<AdminReservations />} />
+            <Route path="reports" element={<ReportGenerator />} />
+          </Route>
+          
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <>
+                <Navbar />
+                <ProfilePage />
+              </>
+            </PrivateRoute>
+          } />
+          
+          <Route path="*" element={
+            <>
+              <Navbar />
+              <HomePage />
+            </>
+          } />
+        </Routes>
+      </main>
+      {!hideChrome && <Footer />}
+    </div>
+  );
+};
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <ReservationProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ReservationProvider>
+    </AuthProvider>
   );
 }
 
