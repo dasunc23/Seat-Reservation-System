@@ -7,6 +7,8 @@ import Footer from './components/footer';
 import HomePage from './pages/home';
 import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
+import ForgotPasswordPage from './pages/forgotPassword';
+import ResetPasswordPage from './pages/resetPassword';
 import DashboardPage from './pages/internDasboard';
 import ProfilePage from './pages/profile';
 import PrivateRoute from './components/privateRoute';
@@ -20,7 +22,7 @@ import AdminHome from './pages/adminHome';
 
 const AppContent = () => {
   const location = useLocation();
-  const hideChrome = location.pathname === '/login' || location.pathname === '/register';
+  const hideChrome = ['/login', '/register', '/forgot-password'].includes(location.pathname) || location.pathname.startsWith('/reset-password');
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -34,6 +36,8 @@ const AppContent = () => {
           } />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           
           <Route path="/dashboard" element={
             <PrivateRoute>

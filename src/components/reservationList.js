@@ -10,7 +10,7 @@ const ReservationList = ({ reservations, onCancel }) => {
       await API.patch(`/reservations/${id}/cancel`);
       onCancel();
     } catch (err) {
-      alert('Failed to cancel reservation');
+      alert(err?.response?.data?.error || 'Failed to cancel reservation');
     }
   };
 

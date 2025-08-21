@@ -145,11 +145,22 @@ const SeatManager = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      seat.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {seat.status}
-                    </span>
+                    {editingSeat === seat._id ? (
+                      <select
+                        defaultValue={seat.status}
+                        onBlur={(e) => handleUpdateSeat(seat._id, { status: e.target.value })}
+                        className="p-1 border border-gray-300 rounded"
+                      >
+                        <option value="available">available</option>
+                        <option value="unavailable">unavailable</option>
+                      </select>
+                    ) : (
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        seat.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {seat.status}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap space-x-2">
                     {editingSeat === seat._id ? (

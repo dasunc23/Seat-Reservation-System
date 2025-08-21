@@ -27,11 +27,41 @@ const AdminReservations = () => {
   const handleCancelReservation = async (id) => {
     if (window.confirm('Are you sure you want to cancel this reservation?')) {
       try {
-        await API.patch(`/reservations/${id}/cancel`);
+        // Use admin cancel endpoint to bypass intern-only restrictions
+        await API.patch(`/admin/reservations/${id}/cancel`);
         fetchReservations();
       } catch (error) {
         console.error('Error cancelling reservation:', error);
       }
+    }
+  };
+
+  const [assignForm, setAssignForm] = useState({ internEmail: '', seatId: '', date: '' });
+  const [availableSeats, setAvailableSeats] = useState([]);
+
+  useEffect(() => {
+    const loadSeats = async () => {
+      try {
+        const res = await API.get('/admin/seats');
+        setAvailableSeats(res.data);
+      } catch (e) {
+        console.error('Failed to load seats', e);
+      }
+    };
+    loadSeats();
+  }, []);
+
+  const handleAssign = async () => {
+    if (!assignForm.internEmail || !assignForm.seatId || !assignForm.date) {
+      alert('Please fill all fields');
+      return;
+    }
+    try {
+      await API.post('/admin/reservations/assign', assignForm);
+      setAssignForm({ internEmail: '', seatId: '', date: '' });
+      fetchReservations();
+    } catch (e) {
+      alert(e?.response?.data?.error || 'Failed to assign');
     }
   };
 
@@ -52,6 +82,37 @@ const AdminReservations = () => {
           >
             Clear Filter
           </button>
+        </div>
+      </div>
+
+      {/* Manual Assignment */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 className="font-medium text-gray-700 mb-3">Manually Assign Seat</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            type="email"
+            placeholder="Intern email"
+            value={assignForm.internEmail}
+            onChange={(e) => setAssignForm({ ...assignForm, internEmail: e.target.value })}
+            className="p-2 border border-gray-300 rounded-md"
+          />
+          <select
+            value={assignForm.seatId}
+            onChange={(e) => setAssignForm({ ...assignForm, seatId: e.target.value })}
+            className="p-2 border border-gray-300 rounded-md"
+          >
+            <option value="">Select seat</option>
+            {availableSeats.map((s) => (
+              <option key={s._id} value={s._id}>{s.seatNumber} - {s.location}</option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={assignForm.date}
+            onChange={(e) => setAssignForm({ ...assignForm, date: e.target.value })}
+            className="p-2 border border-gray-300 rounded-md"
+          />
+          <button onClick={handleAssign} className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Assign</button>
         </div>
       </div>
 

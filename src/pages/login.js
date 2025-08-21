@@ -15,8 +15,10 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const success = await login(formData.email, formData.password);
-      if (success) {
+      const user = await login(formData.email, formData.password);
+      if (user?.role === 'admin') {
+        navigate('/admin');
+      } else {
         navigate('/dashboard');
       }
     } catch (err) {
